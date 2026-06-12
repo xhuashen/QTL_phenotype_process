@@ -6,15 +6,15 @@ library(optparse)
 library(BiocParallel)
 library(dplyr)
 
-##################################################### 日志辅助区 #############################################################
+##################################################### log #############################################################
 
-# 统一日志打印函数
+# log
 log_msg <- function(level = "INFO", message = "") {
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
   cat(glue("[{timestamp}] [{level}] {message}\n"))
 }
 
-##################################################### 参数解析与校验 #############################################################
+##################################################### parse paremeters  #############################################################
 
 option_list <- list(
   make_option(c("--bed"), type="character", help="Path to BED file (Required)"),
@@ -25,10 +25,10 @@ option_list <- list(
   make_option(c("--prefix"), type = "character", help="Output prefix (Required)"),
   make_option(c("--threads"), type = "integer", default=1, help="Number of threads [default: %default]"),
   
-  # PCA 特异参数
+  # PCA specifc parameters
   make_option(c("--tier"), type="character", default=NULL, help="PCA specific: tier vector, e.g., '-5,0,5' [default: 0]"),
   
-  # PEER 特异参数
+  # PEER specific parameters
   make_option(c("--peer_factors"), type = "integer", default=NULL, help="PEER specific: number of peer factors (Required for PEER)"),
   make_option(c("--peer_iter"), type = "integer", default=NULL, help="PEER specific: max iteration times [default: 1000]")
 )
@@ -37,7 +37,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 
 log_msg("INFO", "==== Start Parameter Validation ====")
 
-# 检查常规必要参数是否存在
+# check parameter
 required_args <- c("bed", "cov", "normalization", "output", "prefix")
 for (arg in required_args) {
   if (is.null(opt[[arg]])) {
@@ -46,7 +46,7 @@ for (arg in required_args) {
   }
 }
 
-# 根据 method 严格限制和校验特异性参数
+# check method specifc parameter 
 if (opt$method == "pca") {
   if (!is.null(opt$peer_factors) || !is.null(opt$peer_iter)) {
     log_msg("ERROR", "Cannot specify PEER parameters (--peer_factors, --peer_iter) when --method is 'pca'.")
@@ -80,7 +80,7 @@ if (opt$method == "pca") {
   stop("Error: --method must be either 'pca' or 'peer'.")
 }
 
-# 打印最终确定的核心参数
+# print parameters
 log_msg("INFO", glue("Input BED file: {opt$bed}"))
 log_msg("INFO", glue("Input Covariates file: {opt$cov}"))
 log_msg("INFO", glue("De-confounding Method: {opt$method}"))
@@ -90,7 +90,7 @@ if (opt$method == "pca") log_msg("INFO", glue("PCA tier vector: {paste(tier, col
 if (opt$method == "peer") log_msg("INFO", glue("PEER Factors: {peer_factors_val} | Max Iterations: {peer_iter_val}"))
 log_msg("SUCCESS", "Parameter validation passed successfully.")
 
-# 环境配置
+# multi threads environment 
 register(MulticoreParam(workers = opt$threads))
 Sys.setenv(
   OMP_NUM_THREADS = opt$threads,
@@ -98,7 +98,7 @@ Sys.setenv(
   OPENBLAS_NUM_THREADS = opt$threads
 )
 
-##################################################### 函数定义区 #############################################################
+##################################################### define function #############################################################
 
 RINT <- function(x){
   r <- rank(x, na.last = "keep", ties.method = "random")
@@ -318,17 +318,17 @@ main <- function(bed_path,cov_path,normalization_method,residual_methods,tier,ou
     stop("Error: Zero overlapping samples.")
   }
   
-  # 数据子集过滤与对齐
+  # match matrix and cov
   bed_df <- bed_df[, c(names(bed_df)[1:4], common_samples)]
   cov <- cov[cov$sample %in% common_samples, ]
   cov <- cov[match(common_samples, cov$sample), ]
   
-  # 转换离散变量
+  # convert non-numeric to dummy
   cov <- convert_to_dummy(cov)
   rownames(cov) <- cov[, 1]
   cov <- cov[, -1, drop = FALSE]
   
-  ### 1. 标准化步骤
+  ### 1. normalization
   log_msg("INFO", "Step 1: Running gene expression normalization...")
   if(normalization_method=='ratio_norma'){
       normalize_bed_df=ratio_norma(bed_df)
@@ -337,7 +337,7 @@ main <- function(bed_path,cov_path,normalization_method,residual_methods,tier,ou
   }
   log_msg("SUCCESS", "Normalization phase completed.")
 
-  ### 2. 残差计算步骤
+  ### 2. residuals
   log_msg("INFO", "Step 2: Calculating residuals for hidden factors...")
   if (residual_methods=='pca'){
       log_msg("INFO", "Triggering PCA mode workflow...")
@@ -355,7 +355,7 @@ main <- function(bed_path,cov_path,normalization_method,residual_methods,tier,ou
   log_msg("SUCCESS", glue("==== Pipeline Finished Successfully! Total Elapsed Time: {run_duration} seconds ===="))
 }
 
-##################################################### 运行控制区 #############################################################
+##################################################### running #############################################################
 
 main(
   bed_path = opt$bed, 
