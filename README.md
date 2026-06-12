@@ -20,7 +20,7 @@ By taking a standard phenotype BED file and a known covariates file, this pipeli
 
 ---
 
-## 📦 Install
+## 📦 Install and Usage
 
 we recommend creat a new conda environment
 ```bash
