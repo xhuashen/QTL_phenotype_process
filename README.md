@@ -36,11 +36,13 @@ chr1    10000    10500    GENE001   12.5     14.2     9.1
 chr1    20000    21000    GENE002   104.0    95.2     110.1
 
 2. Covariates File (--cov)
-A tab-delimited text file featuring a mandatory header column named sample (values must match the column names in your BED file), followed by known covariates (numeric or discrete).
+A tab-delimited text file featuring a mandatory header column named samplefollowed by known covariates (numeric or discrete,this script will convert the discrete to dummy).
 sample   Age  Gender  Batch
 Sample1  45   M       Batch_A
 Sample2  52   F       Batch_B
 Sample3  38   M       Batch_A
+
+Note, ensuring the samples in Phenotype BED File are a subset of Covariates File.
 
 💻 Usage
 git clone [https://github.com/xhuashen/QTL_phenotype_process.git](https://github.com/xhuashen/QTL_phenotype_process.git)
