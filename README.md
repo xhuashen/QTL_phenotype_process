@@ -79,9 +79,53 @@ Rscript QTL_get_residual_test.R \
   --prefix MyStudy \
   --threads 4
 
-🛠️ ParametersArgumentData TypeRequiredDefaultDescription--bedcharacterYes-Path to the standard tab-delimited phenotype BED file.--covcharacterYes-Path to the known biological/technical covariates file.--normalizationcharacterYes-Normalization strategy: ratio_norma or raw_count_norma.--methodcharacterNopcaConfounding factor inference method: pca or peer.--outputcharacterYes-Output destination directory path.--prefixcharacterYes-Prefix tag assigned to all generated output files.--threadsintegerNo1Core count for parallel execution (BiocParallel).--tiercharacterNoNULL[PCA Specific] Relative vector string for fine-tuning PC thresholds (e.g., -5,0,5).--peer_factorsintegerNoNULL[PEER Specific] Total number of hidden factors to estimate.--peer_iterintegerNo1000
+🛠️ Parameters
+--bed (character | Required)
+Path to the standard tab-delimited phenotype BED file.
 
-📤 Output FilesUpon successful execution, the pipeline creates the following data files inside your designated --output directory:For --method pca:{prefix}_PCA_vectors.txt: The full calculated principal components (PC) matrix for all samples.{prefix}_tier_PC*.bed: The final corrected phenotype residual BED files. If you specified --tier "-5,0,5", three independent files corresponding to those configurations will be written (e.g., _tier_PC10.bed, _tier_PC15.bed, _tier_PC20.bed) for parallel QTL mapping tests.For --method peer:{prefix}_peer_residuals.bed: The corrected phenotype residual BED file ready for downstream QTL analysis.{prefix}_peer_factor.csv: Inferred latent sample confounding factors matrix ($X$).{prefix}_peer_W.csv: Genomewide weights/loadings matrix ($W$).{prefix}_peer_Alpha.csv: Factor precision parameters ($\alpha$). Smaller values denote hidden factors that explain a larger proportion of phenotype variation.
+--cov (character | Required)
+Path to the known biological/technical covariates file.
+
+--normalization (character | Required)
+Normalization strategy to use: ratio_norma or raw_count_norma.
+
+--method (character | Default: pca)
+Confounding factor inference method: pca or peer.
+
+--output (character | Required)
+Output destination directory path.
+
+--prefix (character | Required)
+Prefix tag assigned to all generated output files.
+
+--threads (integer | Default: 1)
+Core count for parallel execution (BiocParallel).
+
+--tier (character | Default: NULL)
+[PCA Specific] Relative vector string for fine-tuning PC thresholds (e.g., -5,0,5).
+
+--peer_factors (integer | Default: NULL)
+[PEER Specific] Total number of hidden factors to estimate.
+
+--peer_iter (integer | Default: 1000)
+[PEER Specific] Maximum iterations allowed for PEER model convergence.
+
+📤 Output Files
+If you use the PCA method, the pipeline generates:
+
+prefix_PCA_vectors.txt : The full calculated principal components matrix for all samples.
+
+prefix_tier_PC_num.bed : The final corrected phenotype residual BED files. If you used tier -5,0,5, multiple files will be generated for parallel testing.
+
+If you use the PEER method, the pipeline generates:
+
+prefix_peer_residuals.bed : The corrected phenotype residual BED file ready for downstream QTL analysis.
+
+prefix_peer_factor.csv : Inferred latent sample confounding factors matrix.
+
+prefix_peer_W.csv : Genomewide weights and loadings matrix.
+
+prefix_peer_Alpha.csv : Factor precision parameters where smaller values denote higher importance.
 
 
 
