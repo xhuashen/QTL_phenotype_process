@@ -129,5 +129,10 @@ prefix_peer_W.csv : Genomewide weights and loadings matrix.
 
 prefix_peer_Alpha.csv : Factor precision parameters where smaller values denote higher importance.
 
-
+the memory usage and running time
+pca model is very quick than peer, but it need high momery when deal with large sample size.
+we test in a expression matrix 800 samples and 140000 gene , use 4 core, 4 threads , 120G memory , need 25 mins to run
+we test in a expression matrix 600 samples and 27000 gene , use 20 core, 20 threads , 50G memory , need less than 60 mins to run
+we test in 8000 samples and 140000 gene , use 4 parallel and 64 threads, 400 G memory , need less than 500 mins to run.
+peer model can't multi threads, memory will need less than 20G
 
